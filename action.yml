@@ -1,0 +1,20 @@
+name: 'Set Deployment Status'
+description: 'Set the status of a Github Deployment'
+author: 'Peachjar Engineering'
+inputs:
+  token:
+    required: true
+    description: Github token used to create the deployment.
+  deploymentId:
+    required: true
+    description: ID of the deployment to set the status of.
+  state:
+    required: true
+    description: State of the deployment (one of the valid Github DeploymentStatus.state values
+    default: ''
+  description:
+    required: false
+    description: 'An optional description about the deployment status change'
+runs:
+  using: 'node12'
+  main: 'dist/index.js'
