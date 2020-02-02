@@ -1,4 +1,4 @@
-import { GitHub } from '@actions/github'
+import { AxiosInstance } from 'axios'
 import { Context } from '@actions/github/lib/context'
 
 enum States {
@@ -15,7 +15,7 @@ const validStates = Object.values(States)
 
 export default async function run(
     context: Context,
-    GitHub: { new(token: string): GitHub },
+    githubClient: AxiosInstance,
     core: {
         getInput: (key: string, opts?: { required: boolean }) => string
         setOutput: (name: string, value: string) => void
@@ -31,9 +31,9 @@ export default async function run(
             return core.setFailed('[token] not supplied or invalid.')
         }
 
-        const deployment_id = parseInt(core.getInput('deploymentId', { required: true }) || '-1', 10)
+        const deploymentId = parseInt(core.getInput('deploymentId', { required: true }) || '-1', 10)
 
-        if (deployment_id < 1) {
+        if (deploymentId < 1) {
             return core.setFailed('[deploymentId] is not valid.')
         }
 
@@ -45,19 +45,20 @@ export default async function run(
 
         const description = core.getInput('description') || undefined
 
-        const octokit = new GitHub(token)
+        const url = `https://api.github.com/repos/${context.repo.owner}/${context.repo.repo}/deployments/${deploymentId}/statuses`
 
-        const status = await octokit.repos.createDeploymentStatus({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            deployment_id,
-            state,
-            description,
+        const payload = { state, description }
+
+        const { data } = await githubClient.post(url, payload, {
+            headers: {
+                'authorization': `Bearer ${token}`,
+                'content-type': 'application/vnd.github.flash-preview+json',
+            }
         })
 
-        core.info(`Deployment status set: ${deployment_id}`)
+        core.info(`Deployment status set: ${deploymentId}`)
 
-        core.setOutput('deployment_status_id', `${status.data.id}`)
+        core.setOutput('deployment_status_id', `${data.id}`)
 
     } catch (error) {
         core.setFailed(error.message)

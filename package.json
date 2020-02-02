@@ -26,9 +26,11 @@
   "dependencies": {
     "@actions/core": "^1.2.0",
     "@actions/github": "^2.1.0",
+    "axios": "^0.19.2",
     "lodash": "^4.17.15"
   },
   "devDependencies": {
+    "@types/axios": "^0.14.0",
     "@types/jest": "^24.0.23",
     "@types/lodash": "^4.14.149",
     "@types/node": "^12.7.12",

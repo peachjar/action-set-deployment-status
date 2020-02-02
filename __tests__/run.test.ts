@@ -1,12 +1,12 @@
 import { has } from 'lodash'
-import { GitHub } from '@actions/github'
 import { Context } from '@actions/github/lib/context'
+import { AxiosInstance } from 'axios'
 
 import run from '../src/run'
 
 describe('Run function', () => {
     let context: Context
-    let GitHub: { new(token: string): GitHub }
+    let githubClient: AxiosInstance
     let core: {
         getInput: (key: string, opts?: { required: boolean }) => string
         setOutput: (name: string, value: string) => void
@@ -14,26 +14,21 @@ describe('Run function', () => {
         setFailed: (message: string) => void
         [k: string]: any
     }
-    let createDeploymentStatus: jest.Mock
     let inputs: Record<string, string>
 
     beforeEach(() => {
         context = ({
             repo: { owner: 'peachjar', repo: 'foobaz' }
         } as any) as Context
-        createDeploymentStatus = jest.fn(() =>
-            Promise.resolve({
-                data: {
-                    id: 1234567890
-                }
-            })
-        )
-        GitHub = (class {
-            constructor(token: string) {}
-            repos = {
-                createDeploymentStatus: createDeploymentStatus
-            }
-        } as any) as { new(token: string): GitHub }
+        githubClient = {
+            post: jest.fn(() =>
+                Promise.resolve({
+                    data: {
+                        id: 1234567890
+                    }
+                })
+            )
+        } as any as AxiosInstance
         inputs = {
             token: 'footoken',
             deploymentId: '987654321',
@@ -55,14 +50,21 @@ describe('Run function', () => {
 
     describe('when a deployment status update is requested', () => {
         it('should call Github to create a deployment status object', async () => {
-            await run(context, GitHub, core)
-            expect(createDeploymentStatus).toHaveBeenCalledWith({
-                owner: 'peachjar',
-                repo: 'foobaz',
-                deployment_id: 987654321,
-                state: 'success',
-                description: 'Deployment was successful.'
-            })
+            await run(context, githubClient, core)
+            expect(githubClient.post).toHaveBeenCalledWith(
+            expect.stringContaining(
+                'repos/peachjar/foobaz/deployments/987654321/statuses'),
+                {
+                    state: 'success',
+                    description: 'Deployment was successful.'
+                },
+                {
+                    headers: {
+                        'authorization': 'Bearer footoken',
+                        'content-type': 'application/vnd.github.flash-preview+json',
+                    },
+                }
+            )
             expect(core.info).toHaveBeenCalled()
             expect(core.setFailed).not.toHaveBeenCalled()
             expect(core.setOutput).toHaveBeenCalledWith('deployment_status_id', '1234567890')
@@ -75,7 +77,7 @@ describe('Run function', () => {
         })
 
         it('should set the action as failed', async () => {
-            await run(context, GitHub, core)
+            await run(context, githubClient, core)
             expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('[token]'))
         })
     })
@@ -86,7 +88,7 @@ describe('Run function', () => {
         })
 
         it('should set the action as failed', async () => {
-            await run(context, GitHub, core)
+            await run(context, githubClient, core)
             expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('[deploymentId]'))
         })
     })
@@ -97,7 +99,7 @@ describe('Run function', () => {
         })
 
         it('should set the action as failed', async () => {
-            await run(context, GitHub, core)
+            await run(context, githubClient, core)
             expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('[state]'))
             expect(core.setOutput).not.toHaveBeenCalled()
         })
@@ -107,11 +109,11 @@ describe('Run function', () => {
         const error = new Error('Kaboom!')
 
         beforeEach(() => {
-            createDeploymentStatus = jest.fn(() => Promise.reject(error))
+            githubClient.post = jest.fn(() => Promise.reject(error))
         })
 
         it('should fail the action', async () => {
-            await run(context, GitHub, core)
+            await run(context, githubClient, core)
             expect(core.setFailed).toHaveBeenCalledWith(error.message)
             expect(core.setOutput).not.toHaveBeenCalled()
         })
