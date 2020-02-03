@@ -1,4 +1,5 @@
-import { AxiosInstance } from 'axios'
+import { get } from 'lodash'
+import { AxiosInstance, AxiosError } from 'axios'
 import { Context } from '@actions/github/lib/context'
 
 enum States {
@@ -61,6 +62,13 @@ export default async function run(
         core.setOutput('deployment_status_id', `${data.id}`)
 
     } catch (error) {
+
+        if ((error as AxiosError).isAxiosError) {
+            const axiosError = error as AxiosError
+            const message = JSON.stringify(get(axiosError, 'response.data', 'Not response error'))
+            core.info(`Axios Response Error [${axiosError.response?.status}]: ${message}`)
+        }
+
         core.setFailed(error.message)
     }
 }
