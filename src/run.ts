@@ -53,7 +53,8 @@ export default async function run(
         const { data } = await githubClient.post(url, payload, {
             headers: {
                 'authorization': `Bearer ${token}`,
-                'content-type': 'application/vnd.github.flash-preview+json',
+                'accept': 'application/vnd.github.ant-man-preview+json, application/vnd.github.flash-preview+json',
+                'content-type': 'application/json',
             }
         })
 

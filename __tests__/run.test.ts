@@ -61,7 +61,8 @@ describe('Run function', () => {
                 {
                     headers: {
                         'authorization': 'Bearer footoken',
-                        'content-type': 'application/vnd.github.flash-preview+json',
+                        'accept': 'application/vnd.github.ant-man-preview+json, application/vnd.github.flash-preview+json',
+                        'content-type': 'application/json',
                     },
                 }
             )
