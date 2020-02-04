@@ -29,5 +29,11 @@ jobs:
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         deploymentId: ${{ steps.deploy.outputs.deployment_id }}
+        state: in_progress
+        description: Deployment is in progress
+    - uses: ./
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        deploymentId: ${{ steps.deploy.outputs.deployment_id }}
         state: success
         description: Deployment was successful
