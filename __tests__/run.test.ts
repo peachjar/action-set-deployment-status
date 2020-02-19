@@ -34,6 +34,8 @@ describe('Run function', () => {
             deploymentId: '987654321',
             state: 'success',
             description: 'Deployment was successful.',
+            // '' = not provided in github-land
+            repository: '',
         }
         core = {
             getInput: jest.fn((key: string) => {
@@ -54,6 +56,37 @@ describe('Run function', () => {
             expect(githubClient.post).toHaveBeenCalledWith(
             expect.stringContaining(
                 'repos/peachjar/foobaz/deployments/987654321/statuses'),
+                {
+                    state: 'success',
+                    description: 'Deployment was successful.'
+                },
+                {
+                    headers: {
+                        'authorization': 'Bearer footoken',
+                        'accept': 'application/vnd.github.ant-man-preview+json, application/vnd.github.flash-preview+json',
+                        'content-type': 'application/json',
+                    },
+                }
+            )
+            expect(core.info).toHaveBeenCalled()
+            expect(core.setFailed).not.toHaveBeenCalled()
+            expect(core.setOutput).toHaveBeenCalledWith('deployment_status_id', '1234567890')
+        })
+    })
+
+    describe('when a foreign repo is set as input param', () => {
+        beforeEach(() => {
+            inputs = {
+                ...inputs,
+                repository: '3rdparty/some-other-repo',
+            }
+        })
+
+        it('should call Github to create a deployment status object against that repo', async () => {
+            await run(context, githubClient, core)
+            expect(githubClient.post).toHaveBeenCalledWith(
+            expect.stringContaining(
+                'repos/3rdparty/some-other-repo/deployments/987654321/statuses'),
                 {
                     state: 'success',
                     description: 'Deployment was successful.'
