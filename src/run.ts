@@ -14,6 +14,11 @@ enum States {
 
 const validStates = Object.values(States)
 
+interface GitHubRepository {
+    owner: string,
+    repo: string,
+}
+
 export default async function run(
     context: Context,
     githubClient: AxiosInstance,
@@ -46,7 +51,18 @@ export default async function run(
 
         const description = core.getInput('description') || undefined
 
-        const url = `https://api.github.com/repos/${context.repo.owner}/${context.repo.repo}/deployments/${deploymentId}/statuses`
+        // Default to current repo, but if provided, trigger deployment on another
+        let deployRepo: GitHubRepository = context.repo
+        const deployRepoParam = core.getInput('repository')
+        if (deployRepoParam !== '') {
+            const [ owner, repo ] = deployRepoParam.split('/')
+            deployRepo = {
+                owner,
+                repo,
+            }
+        }
+
+        const url = `https://api.github.com/repos/${deployRepo.owner}/${deployRepo.repo}/deployments/${deploymentId}/statuses`
 
         const payload = { state, description }
 

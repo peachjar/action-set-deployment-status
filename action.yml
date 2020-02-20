@@ -8,6 +8,10 @@ inputs:
   deploymentId:
     required: true
     description: ID of the deployment to set the status of.
+  repository:
+    required: false
+    description: The github repository (owner/repo) that is being deployed
+    default: ${{ github.repository }}
   state:
     required: true
     description: State of the deployment (one of the valid Github DeploymentStatus.state values
