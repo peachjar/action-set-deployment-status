@@ -42,6 +42,8 @@ runs:
         INPUT_STATE: ${{ inputs.state}}
         INPUT_DESCRIPTION: ${{ inputs.description }}
       run: |
+        cd ${{github.action_path}}
+        pwd
         ls
         node dist/index.js
 
