@@ -19,6 +19,14 @@ inputs:
   description:
     required: false
     description: 'An optional description about the deployment status change'
+  channelId:
+    required: false
+    description: 'An optional slack channel-id to notify if the deploy status is "failure"\'
+    default: ${{ secrets.CHANNEL_ID }}
+  slackWebhookUrl:
+    required: false
+    description: 'Slack webhook URL to send messages when deploy fail'
+    default: ${{ secrets.SLACK_NOTIFICATIONS_TOKEN }}
 runs:
   using: 'composite'
   steps:
@@ -42,7 +50,7 @@ runs:
       if: ${{ inputs.state == 'failure' }}
       uses: slackapi/slack-github-action@v1.25.0
       with:
-        channel-id: '${{ secrets.CHANNEL_ID }}'
+        channel-id: '${{ inputs.channelId }}'
         payload: |
           {
             "text": "Deployment for ${{ github.repository }} - failed",
@@ -70,5 +78,5 @@ runs:
             ]
           }
       env:
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_NOTIFICATIONS_TOKEN }}
+        SLACK_WEBHOOK_URL: ${{ inputs.slackWebhookUrl }}
         SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
