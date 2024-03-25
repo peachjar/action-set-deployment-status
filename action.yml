@@ -43,8 +43,6 @@ runs:
         INPUT_DESCRIPTION: ${{ inputs.description }}
       run: |
         cd ${{github.action_path}}
-        pwd
-        ls
         node dist/index.js
 
     - name: Send slack message on failure
@@ -61,7 +59,7 @@ runs:
                 "type": "section",
                 "text": {
                   "type": "mrkdwn",
-                  "text": "*":alert: Deployment for ${{ github.repository }} - failed* :fire_engine:\n Check github workflow for more information"
+                  "text": ":alert: *Deployment for ${{ github.repository }} - failed* :fire_engine:\n Check github workflow for more information"
                 }
               },
               {
