@@ -40,3 +40,10 @@ jobs:
         deploymentId: ${{ steps.deploy.outputs.deployment_id }}
         state: success
         description: Deployment was successful
+    - name: Test Failure
+      uses: ./
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        deploymentId: ${{ steps.deploy.outputs.deployment_id }}
+        state: failure
+        description: Failed to deploy.

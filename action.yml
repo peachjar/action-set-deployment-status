@@ -36,3 +36,39 @@ runs:
         INPUT_DESCRIPTION: ${{ inputs.description }}
       run: |
         node dist/index.js
+
+    - name: Send slack message on failure
+      id: slack
+      if: ${{ inputs.state == 'failure' }}
+      uses: slackapi/slack-github-action@v1.25.0
+      with:
+        channel-id: '${{ secrets.CHANNEL_ID }}'
+        payload: |
+          {
+            "text": "Deployment for ${{ github.repository }} - failed",
+            "blocks": [
+              {
+                "type": "section",
+                "text": {
+                  "type": "mrkdwn",
+                  "text": "*":alert: Deployment for ${{ github.repository }} - failed* :fire_engine:\n Check github workflow for more information"
+                }
+              },
+              {
+                "type": "actions",
+                "elements": [
+                  {
+                    "type": "button",
+                    "text": {
+                      "type": "plain_text",
+                      "text": ":github: Failed action"
+                    },
+                    "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                  }
+                ]
+              }
+            ]
+          }
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_NOTIFICATIONS_TOKEN }}
+        SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
