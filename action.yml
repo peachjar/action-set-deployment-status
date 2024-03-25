@@ -30,7 +30,7 @@ runs:
       shell: bash
       env:
         INPUT_TOKEN: ${{ inputs.token }}
-        INPUT_DEPLOYMENT_ID: ${{ inputs.deploymentId }}
+        INPUT_DEPLOYMENTID: ${{ inputs.deploymentId }}
         INPUT_REPOSITORY: ${{ inputs.repository }}
         INPUT_STATE: ${{ inputs.state}}
         INPUT_DESCRIPTION: ${{ inputs.description }}
