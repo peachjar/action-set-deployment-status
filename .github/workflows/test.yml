@@ -47,3 +47,5 @@ jobs:
         deploymentId: ${{ steps.deploy.outputs.deployment_id }}
         state: failure
         description: Failed to deploy.
+        channelId: ${{ secrets.CHANNEL_ID }}
+        slackToken: ${{ secrets.SLACK_NOTIFICATIONS_TOKEN }}

@@ -22,11 +22,9 @@ inputs:
   channelId:
     required: false
     description: 'An optional slack channel-id to notify if the deploy status is "failure"\'
-    default: ${{ secrets.CHANNEL_ID }}
-  slackWebhookUrl:
+  slackToken:
     required: false
     description: 'Slack webhook URL to send messages when deploy fail'
-    default: ${{ secrets.SLACK_NOTIFICATIONS_TOKEN }}
 runs:
   using: 'composite'
   steps:
@@ -78,5 +76,5 @@ runs:
             ]
           }
       env:
-        SLACK_WEBHOOK_URL: ${{ inputs.slackWebhookUrl }}
+        SLACK_WEBHOOK_URL: ${{ inputs.slackToken }}
         SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
