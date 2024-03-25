@@ -4,7 +4,6 @@ on: # rebuild any PRs and main branch changes
   push:
     branches:
       - master
-      - DEVOP-11
 
 jobs:
   build: # make sure build/ci work properly
@@ -40,12 +39,3 @@ jobs:
         deploymentId: ${{ steps.deploy.outputs.deployment_id }}
         state: success
         description: Deployment was successful
-    - name: Test Failure
-      uses: ./
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        deploymentId: ${{ steps.deploy.outputs.deployment_id }}
-        state: failure
-        description: Failed to deploy.
-        channelId: ${{ secrets.CHANNEL_ID }}
-        slackToken: ${{ secrets.SLACK_NOTIFICATIONS_TOKEN }}
