@@ -20,5 +20,13 @@ inputs:
     required: false
     description: 'An optional description about the deployment status change'
 runs:
-  using: 'node12'
-  main: 'dist/index.js'
+  using: 'composite'
+  steps:
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '12.x'
+
+    - name: Run script 
+      shell: bash
+      run: |
+        node dist/index.js
