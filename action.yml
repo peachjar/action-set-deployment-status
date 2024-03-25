@@ -28,5 +28,11 @@ runs:
 
     - name: Run script 
       shell: bash
+      env:
+        token: ${{ inputs.token }}
+        deploymentId: ${{ inputs.deploymentId }}
+        repository: ${{ inputs.repository }}
+        state: ${{ inputs.state}}
+        description: ${{ inputs.description }}
       run: |
         node dist/index.js
