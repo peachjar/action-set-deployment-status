@@ -28,6 +28,7 @@ inputs:
 runs:
   using: 'composite'
   steps:
+    - uses: actions/checkout@v4
     - uses: actions/setup-node@v4
       with:
         node-version: '12.x'
@@ -41,6 +42,7 @@ runs:
         INPUT_STATE: ${{ inputs.state}}
         INPUT_DESCRIPTION: ${{ inputs.description }}
       run: |
+        ls
         node dist/index.js
 
     - name: Send slack message on failure
