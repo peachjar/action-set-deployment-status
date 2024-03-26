@@ -63,6 +63,9 @@ runs:
                 }
               },
               {
+                "type": "divider"
+              },
+              {
                 "type": "section",
                 "fields": [
                   {
@@ -79,9 +82,12 @@ runs:
                   },
                   {
                     "type": "mrkdwn",
-                    "text": "*deployment-id:*${{ inputs.deploymentId }}"
+                    "text": "*deployment-id:* ${{ inputs.deploymentId }}"
                   }
                     ]
+              },
+              {
+                "type": "divider"
               },
               {
                 "type": "actions",
