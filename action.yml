@@ -42,6 +42,8 @@ runs:
         INPUT_STATE: ${{ inputs.state}}
         INPUT_DESCRIPTION: ${{ inputs.description }}
       run: |
+        calculatedSha=$(git rev-parse --short ${{ github.sha }})
+        echo "COMMIT_SHORT_SHA=$calculatedSha" >> $GITHUB_ENV
         cd ${{github.action_path}}
         node dist/index.js
 
@@ -78,16 +80,13 @@ runs:
                   },
                   {
                     "type": "mrkdwn",
-                    "text": "*commit-id:*\n<${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>"
+                    "text": "*commit-id:*\n<${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ env.COMMIT_SHORT_SHA }}>"
                   },
                   {
                     "type": "mrkdwn",
-                    "text": "*deployment-id:* ${{ inputs.deploymentId }}"
+                    "text": "*deployment-id:*\n${{ inputs.deploymentId }}"
                   }
                     ]
-              },
-              {
-                "type": "divider"
               },
               {
                 "type": "actions",
