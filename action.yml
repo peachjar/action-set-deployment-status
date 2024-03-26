@@ -42,6 +42,10 @@ runs:
         INPUT_STATE: ${{ inputs.state}}
         INPUT_DESCRIPTION: ${{ inputs.description }}
       run: |
+        env
+        echo ${{ github.env }} || true
+        echo 'event'
+        echo ${{ github.event }} || true
         cd ${{github.action_path}}
         node dist/index.js
 
@@ -53,13 +57,13 @@ runs:
         channel-id: '${{ inputs.channelId }}'
         payload: |
           {
-            "text": "Deployment for ${{ github.repository }} - failed",
+            "text": "Deployment for <${{ github.server_url }}/${{ github.repository }}|${{ github.repository }}> - failed",
             "blocks": [
               {
                 "type": "section",
                 "text": {
                   "type": "mrkdwn",
-                  "text": ":alert: *Deployment for ${{ github.repository }} - failed* :fire_engine:\n Check github workflow for more information"
+                  "text": ":alert: *Deployment for <${{ github.server_url }}/${{ github.repository }}|${{ github.repository }}> - failed!* :alert:\n Check github workflow for more information"
                 }
               },
               {
@@ -69,7 +73,7 @@ runs:
                     "type": "button",
                     "text": {
                       "type": "plain_text",
-                      "text": ":github: Failed action"
+                      "text": ":github-sad: Failed workflow run"
                     },
                     "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
                   }
