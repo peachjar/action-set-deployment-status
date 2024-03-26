@@ -19,6 +19,91 @@ inputs:
   description:
     required: false
     description: 'An optional description about the deployment status change'
+  channelId:
+    required: false
+    description: 'An optional slack channel-id to notify if the deploy status is "failure"\'
+  slackToken:
+    required: false
+    description: 'Slack webhook URL to send messages when deploy fail'
 runs:
-  using: 'node12'
-  main: 'dist/index.js'
+  using: 'composite'
+  steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '12.x'
+
+    - name: Run script 
+      shell: bash
+      env:
+        INPUT_TOKEN: ${{ inputs.token }}
+        INPUT_DEPLOYMENTID: ${{ inputs.deploymentId }}
+        INPUT_REPOSITORY: ${{ inputs.repository }}
+        INPUT_STATE: ${{ inputs.state}}
+        INPUT_DESCRIPTION: ${{ inputs.description }}
+      run: |
+        calculatedSha=$(git rev-parse --short ${{ github.sha }})
+        echo "COMMIT_SHORT_SHA=$calculatedSha" >> $GITHUB_ENV
+        cd ${{github.action_path}}
+        node dist/index.js
+
+    - name: Send slack message on failure
+      id: slack
+      if: ${{ inputs.state == 'failure' && inputs.channelId != '' }}
+      uses: slackapi/slack-github-action@v1.25.0
+      with:
+        channel-id: '${{ inputs.channelId }}'
+        payload: |
+          {
+            "text": "Deployment for <${{ github.server_url }}/${{ github.repository }}|${{ github.repository }}> - failed",
+            "blocks": [
+              {
+                "type": "section",
+                "text": {
+                  "type": "mrkdwn",
+                  "text": ":alert: *Deployment for <${{ github.server_url }}/${{ github.repository }}|${{ github.repository }}> - failed!* :alert:\n Check github workflow for more information"
+                }
+              },
+              {
+                "type": "divider"
+              },
+              {
+                "type": "section",
+                "fields": [
+                  {
+                    "type": "mrkdwn",
+                    "text": "*owner:*\n${{ github.repository_owner }}"
+                  },
+                  {
+                    "type": "mrkdwn",
+                    "text": "*repository:*\n${{ github.repository }}"
+                  },
+                  {
+                    "type": "mrkdwn",
+                    "text": "*commit-id:*\n<${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ env.COMMIT_SHORT_SHA }}>"
+                  },
+                  {
+                    "type": "mrkdwn",
+                    "text": "*deployment-id:*\n${{ inputs.deploymentId }}"
+                  }
+                    ]
+              },
+              {
+                "type": "actions",
+                "elements": [
+                  {
+                    "type": "button",
+                    "text": {
+                      "type": "plain_text",
+                      "text": "Failed workflow run"
+                    },
+                    "style": "danger",
+                    "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                  }
+                ]
+              }
+            ]
+          }
+      env:
+        SLACK_WEBHOOK_URL: ${{ inputs.slackToken }}
+        SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
