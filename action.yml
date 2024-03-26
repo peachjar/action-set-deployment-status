@@ -42,10 +42,6 @@ runs:
         INPUT_STATE: ${{ inputs.state}}
         INPUT_DESCRIPTION: ${{ inputs.description }}
       run: |
-        env
-        echo ${{ github.env }} || true
-        echo 'event'
-        echo ${{ github.event }} || true
         cd ${{github.action_path}}
         node dist/index.js
 
@@ -67,14 +63,36 @@ runs:
                 }
               },
               {
+                "type": "section",
+                "fields": [
+                  {
+                    "type": "mrkdwn",
+                    "text": "*owner:*\n${{ github.repository_owner }}"
+                  },
+                  {
+                    "type": "mrkdwn",
+                    "text": "*repository:*\n${{ github.repository }}"
+                  },
+                  {
+                    "type": "mrkdwn",
+                    "text": "*commit-id:*\n<${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>"
+                  },
+                  {
+                    "type": "mrkdwn",
+                    "text": "*deployment-id:*${{ inputs.deploymentId }}"
+                  }
+                    ]
+              },
+              {
                 "type": "actions",
                 "elements": [
                   {
                     "type": "button",
                     "text": {
                       "type": "plain_text",
-                      "text": ":github-sad: Failed workflow run"
+                      "text": "Failed workflow run"
                     },
+                    "style": "danger",
                     "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
                   }
                 ]
