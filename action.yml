@@ -28,12 +28,11 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - uses: actions/checkout@v4
     - uses: actions/setup-node@v4
       with:
         node-version: '12.x'
 
-    - name: Run script 
+    - name: Run script
       shell: bash
       env:
         INPUT_TOKEN: ${{ inputs.token }}
